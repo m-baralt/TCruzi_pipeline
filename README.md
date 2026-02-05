@@ -1,6 +1,6 @@
 # Tripanosoma Cruzi AKT-like kinase ligands
 
-In this repository, the workflow to determine potential ligands for the AKT-like kinase protein in T. Cruzi is made available. Appropriate ligands will fullfill a set of conditions:
+In this repository, a workflow to determine potential ligands for the Pleckstrin Homology domain in AKT-like kinase protein in T. Cruzi is made available. Appropriate ligands will fullfill a set of conditions:
 - High affinity with the AKT-like kinase protein in T. Cruzi
 - Low affinity with the AKT-like kinase protein in humans, thus low toxicity for humans
 - High solubility
@@ -12,6 +12,12 @@ To achieve this goal, several steps will be performed.
 ```bash
 git clone --recurse-submodules git@github.com:m-baralt/TCruzi_pipeline.git
 cd TCruzi_pipeline
+```
+
+If already cloned without submodules:
+
+```bash
+git submodule update --init --recursive
 ```
 
 ## Database construction
