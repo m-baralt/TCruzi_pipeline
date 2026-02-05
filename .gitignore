@@ -1,0 +1,10 @@
+# Ignore submodule weights
+external/Drug-the-Whole-Genome/data/*
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
+venv/
+.env/
