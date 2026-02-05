@@ -1,0 +1,3 @@
+[submodule "external/Drug-The-Whole-Genome"]
+	path = external/Drug-The-Whole-Genome
+	url = https://github.com/THU-ATOM/Drug-The-Whole-Genome.git
