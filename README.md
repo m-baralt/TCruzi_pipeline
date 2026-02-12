@@ -22,6 +22,16 @@ git submodule update --init --recursive
 
 ## Database construction
 
+1. We need to add releases with the files required to built the database, create an sh for downloading it and change paths of db_creation.py accordingly. 
+
+2. Once the data has been downloaded and placed in the appropriate directory, run:
+`python src/db_creation.py` 
+This creates a DuckDB database file.
+**Note**: The resulting file requires approximately **263** GB of disk space.
+3. Convert the database to Parquet:
+`python src/duckdb_to_parquet.py` 
+This produces a more storage-efficient Parquet version (**~61 GB**).
+
 ## T. Cruzi AKT-like Kinase virtual screening with DrugCLIP
 
 1. Extract the structure of the T. Cruzi AKT-like Kinase from Protein Data Bank, accessible through the [8OZZ](https://www.rcsb.org/structure/8OZZ) identifier.
