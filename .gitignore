@@ -1,6 +1,12 @@
 # Ignore submodule weights
 external/Drug-the-Whole-Genome/data/*
 
+# Ignore test folder
+test/*
+
+# Ignore ipynb_checkpoints
+.ipynb_checkpoints/
+
 # Ignore Python cache
 __pycache__/
 *.pyc
