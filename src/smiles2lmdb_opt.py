@@ -14,12 +14,12 @@ import argparse
 
 ETKDG_PARAMS = AllChem.ETKDGv3()
 ETKDG_PARAMS.randomSeed = 42
-ETKDG_PARAMS.timeout = 1
+ETKDG_PARAMS.timeout = 5
 ETKDG_PARAMS.maxIterations = 200
 ETKDG_PARAMS.pruneRmsThresh = 0.1
 
+# not being used anymore, but keeping it for reference
 def smi2_2Dcoords(mol):
-    #mol = Chem.MolFromSmiles(smi)
     mol = AllChem.AddHs(mol)
     AllChem.Compute2DCoords(mol)
     coordinates = mol.GetConformer().GetPositions().astype(np.float32)
@@ -28,7 +28,6 @@ def smi2_2Dcoords(mol):
 
 
 def smi2_3Dcoords(mol,seed=42):
-    #mol = Chem.MolFromSmiles(smi)
     mol = AllChem.AddHs(mol)
     params = AllChem.ETKDGv3()
     params.randomSeed = seed
@@ -65,7 +64,7 @@ def smi2coords(smi, seed=42):
         
 
 def process_duckdb_to_lmdb(db_path, output_lmdb, smiles_col='SMILES', batch_size=5000, 
-                           n_molecules=1000000, seed=42, nthreads=8, timeout=20):
+                           n_molecules=1000000, seed=42, nthreads=8):
     """Stream from DuckDB and write to LMDB in batches"""
     
     output_path = Path(output_lmdb)
@@ -87,7 +86,6 @@ def process_duckdb_to_lmdb(db_path, output_lmdb, smiles_col='SMILES', batch_size
     
     global_idx = 0
     filtered_count = 0
-    #pool_func = partial(smi2coords_with_timeout, seed=seed, timeout=timeout)
     pool_func = partial(smi2coords, seed=seed)
 
     result = con.execute(f"""
@@ -115,16 +113,59 @@ def process_duckdb_to_lmdb(db_path, output_lmdb, smiles_col='SMILES', batch_size
     env.close()
     con.close()
 
+def process_txt_to_lmdb(txt_path, output_lmdb,
+                        seed=42, nthreads=8):
+    """Stream from DuckDB and write to LMDB in batches"""
+    
+    output_path = Path(output_lmdb)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Open LMDB once
+    env = lmdb.open(
+        str(output_path),
+        subdir=False,
+        readonly=False,
+        lock=False,
+        readahead=False,
+        meminit=False,
+        max_readers=1,
+        map_size=int(5e11),  
+    )
+    
+    global_idx = 0
+    filtered_count = 0
+    pool_func = partial(smi2coords, seed=seed)
+
+    with open(txt_path) as f, Pool(nthreads) as pool:
+        smiles_iter = (line.strip() for line in f if line.strip())
+        txn = env.begin(write=True)
+        iterator = pool.imap(pool_func, smiles_iter)
+        for i,output in enumerate(tqdm(iterator)):
+            if output is not None:
+                txn.put(str(i).encode(), output)
+                global_idx += 1
+            else:
+                filtered_count += 1
+
+
+        txn.commit()
+        print("Total processed:", global_idx)
+        print("Total filtered:", filtered_count)
+
+    env.close()
+
+def smiles2lmdb(output_lmdb, db_path = None, txt_path = None, smiles_col='SMILES', batch_size=5000, 
+                n_molecules=1000000, seed=42, nthreads=8):
+    if db_path is not None:
+        process_duckdb_to_lmdb(db_path, output_lmdb, smiles_col, batch_size, n_molecules, seed, nthreads)
+    elif txt_path is not None:
+        process_txt_to_lmdb(txt_path, output_lmdb, seed, nthreads)
+    else:
+        raise ValueError("Either db_path or txt_path must be provided")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Convert SMILES to LMDB"
-    )
-
-    parser.add_argument(
-        "--db_path",
-        "-i",
-        required=True,
-        help="Path to parquet database"
     )
 
     parser.add_argument(
@@ -132,6 +173,18 @@ if __name__ == "__main__":
         "-o",
         required=True,
         help="Output LMDB file path"
+    )
+
+    parser.add_argument(
+        "--db_path",
+        required=False,
+        help="Path to parquet database"
+    )
+
+    parser.add_argument(
+        "--txt_path",
+        required=False,
+        help="Path to txt file with SMILES"
     )
 
     parser.add_argument(
@@ -173,19 +226,9 @@ if __name__ == "__main__":
         type=int,
         default=8
     )
-
-    parser.add_argument(
-        "--timeout", 
-        type=int, 
-        default=20, 
-        help="Per-molecule timeout in seconds"
-    )
     
     args = parser.parse_args()
 
-    if not os.path.exists(args.db_path):
-        raise ValueError("Input database does not exist")
-
-    process_duckdb_to_lmdb(db_path = args.db_path, output_lmdb=args.output_lmdb, smiles_col=args.smiles_col, 
-                           n_molecules=args.number_molecules, batch_size=args.batch_size, seed=args.seed, 
-                           nthreads=args.nthreads, timeout=args.timeout)
+    smiles2lmdb(output_lmdb=args.output_lmdb, db_path = args.db_path, txt_path = args.txt_path, 
+                smiles_col=args.smiles_col, n_molecules=args.number_molecules, 
+                batch_size=args.batch_size, seed=args.seed, nthreads=args.nthreads)
