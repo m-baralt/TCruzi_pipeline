@@ -1,39 +1,81 @@
-# Tripanosoma Cruzi AKT-like kinase ligands
+# Trypanosoma cruzi AKT-like kinase ligand discovery pipeline
 
-In this repository, a workflow to determine potential ligands for the Pleckstrin Homology domain in AKT-like kinase protein in T. Cruzi is made available. Appropriate ligands will fullfill a set of conditions:
-- High affinity with the AKT-like kinase protein in T. Cruzi
-- Low toxicity in humans
-- High solubility
+This repository provides a workflow to identify potential ligands for the **Pleckstrin Homology (PH) domain** of the AKT-like kinase protein in *Trypanosoma cruzi*.
 
-To achieve this goal, several steps will be performed. 
+Candidate ligands are evaluated based on several criteria:
+
+- **High affinity** for the AKT-like kinase PH domain
+- **Low predicted toxicity** in humans
+- **High solubility**
+
+The workflow integrates structure-based screening and downstream filtering to identify promising compounds.
+
+---
 
 ## Setup Instructions
+
+Clone the repository together with its submodules:
 
 ```bash
 git clone --recurse-submodules git@github.com:m-baralt/TCruzi_pipeline.git
 cd TCruzi_pipeline
 ```
 
-If already cloned without submodules:
+If the repository was cloned **without submodules**, initialize them with:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-**Instruction for me:** I need to create env files tc_pipeline.yml and drugclip.yml. Instructions for users:
+---
+
+**Environment setup**
+
+Create the required conda environments:
 
 ```bash
 conda env create -f envs/tc_pipeline.yml
 conda env create -f envs/drugclip.yml
 ```
 
-To download model weights in the data directory run this in your repo directory:
+Activate the main pipeline environment:
+
+```bash
+conda activate tc_pipeline
+```
+
+---
+
+**Download DrugCLIP model weights**
+
+The DrugCLIP screening pipeline requires pretrained model weights.
+
+Download them using the Hugging Face CLI:
 
 ```bash
 hf download THU-ATOM/DrugCLIP_data model_weights.zip --repo-type dataset --local-dir external/Drug-The-Whole-Genome/data/
+```
+
+Extract the archive:
+
+```bash
 cd external/Drug-The-Whole-Genome/data/
 unzip model_weights.zip
 ```
+
+---
+
+## Pipeline overview
+
+1. Create molecular database from publicly available databases. 
+2. Extract the protein pocket structure.
+3. Convert the pocket structure to LMDB format.
+4. Convert molecule databases to LMDB format.
+5. Run DrugCLIP virtual screening.
+6. Predict toxicity and solubility for each molecule. 
+7. Prioritize candidates. 
+   
+---
 
 ## Database construction
 
@@ -55,7 +97,7 @@ This produces a more storage-efficient Parquet version (**~61 GB**).
 
 ## Virtual Screening with DrugCLIP
 
-### 1. Download the protein structure
+#### 1. Download the protein structure
 
 Extract the structure of the *T. cruzi* AKT-like kinase (or another protein/domain of interest) from the Protein Data Bank using the identifier:
 
@@ -65,7 +107,7 @@ Download the structure in **PDB format** and place it in the `data/` directory.
 
 ---
 
-### 2. Convert the protein pocket to LMDB format
+#### 2. Convert the protein pocket to LMDB format
 
 DrugCLIP requires the protein pocket structure to be stored in **LMDB format**.
 
@@ -87,7 +129,7 @@ The implementation was modified from the DrugCLIP screening pipeline repository:
 
 ---
 
-### 3. Convert molecules to LMDB format
+#### 3. Convert molecules to LMDB format
 
 DrugCLIP also requires molecules to be stored in LMDB format.
 
@@ -118,7 +160,7 @@ python src/smiles2lmdb_opt.py \
     --txt_path test/smiles_test.txt
 ```
 
-### 4. Run DrugCLIP virtual screening
+#### 4. Run DrugCLIP virtual screening
 
 Before running the screening, modify the configuration file if needed:
 
@@ -132,7 +174,7 @@ Then launch the DrugCLIP virtual screening pipeline:
 bash scripts/run_drugclip.sh
 ```
 
-### 5. Output
+#### 5. Output
 
 The pipeline generates a `.txt` file (defined by save_path) containing:
 
