@@ -2,7 +2,7 @@
 
 In this repository, a workflow to determine potential ligands for the Pleckstrin Homology domain in AKT-like kinase protein in T. Cruzi is made available. Appropriate ligands will fullfill a set of conditions:
 - High affinity with the AKT-like kinase protein in T. Cruzi
-- Low affinity with the AKT-like kinase protein in humans, thus low toxicity for humans
+- Low toxicity in humans
 - High solubility
 
 To achieve this goal, several steps will be performed. 
@@ -37,7 +37,7 @@ unzip model_weights.zip
 
 ## Database construction
 
-1. We need to add releases with the files required to built the database, create an sh for downloading it and change paths of db_creation.py accordingly. 
+1. We need to add releases with the files required to built the database, create a bash file for downloading it and change paths of db_creation.py accordingly. 
 
 2. Once the data has been downloaded and placed in the appropriate directory, run:
 
@@ -53,21 +53,101 @@ This creates a DuckDB database file.
 
 This produces a more storage-efficient Parquet version (**~61 GB**).
 
-## T. Cruzi AKT-like Kinase virtual screening with DrugCLIP
+## Virtual Screening with DrugCLIP
 
-1. Extract the structure of the T. Cruzi AKT-like Kinase from Protein Data Bank, accessible through the [8OZZ](https://www.rcsb.org/structure/8OZZ) identifier.
-2. Run:
+### 1. Download the protein structure
 
-`python pocket2lmdb.py`
+Extract the structure of the *T. cruzi* AKT-like kinase (or another protein/domain of interest) from the Protein Data Bank using the identifier:
 
-This converts the PDB file containing the raw structure to a cleaned lmdb file (required by DrugCLIP). 
-Modified from [DrugCLIP screen pipeline repository](https://github.com/THU-ATOM/DrugCLIP_screen_pipeline/tree/main)).
+**[8OZZ](https://www.rcsb.org/structure/8OZZ)**
 
-3. Run DrugCLIP virtual screening using a modified file to avoid model weights incompatibilities.
+Download the structure in **PDB format** and place it in the `data/` directory.
 
-Explanation: model weights were saved with Pytorch<=2.5, but in Pytorch>=2.6, the default call is `weights_only=True`, which only allows tensor objects, so non-tensor objects like `argparse.Namespace` return errors when loaded. `run_retrieval.py` avoids this behaviour. 
+---
 
-## Toxicity and solubility prediction using --
+### 2. Convert the protein pocket to LMDB format
 
+DrugCLIP requires the protein pocket structure to be stored in **LMDB format**.
+
+Run the following command:
+
+```bash
+python src/pocket2lmdb.py -i data/8OZZ.pdb -o data/test_pocket.lmdb
+```
+
+To see all available arguments:
+
+```bash
+python src/pocket2lmdb.py --help
+```
+
+This script converts the raw PDB structure into a cleaned LMDB database compatible with DrugCLIP.
+
+The implementation was modified from the DrugCLIP screening pipeline repository: https://github.com/THU-ATOM/DrugCLIP_screen_pipeline
+
+---
+
+### 3. Convert molecules to LMDB format
+
+DrugCLIP also requires molecules to be stored in LMDB format.
+
+To view all available arguments:
+
+```bash
+python src/smiles2lmdb_opt.py --help
+```
+
+**Convert molecules from a parquet database**
+
+Example: convert 100 molecules from a parquet database:
+
+```bash
+python src/smiles2lmdb_opt.py \
+    -o test/test_mols.lmdb \
+    --db_path /home/mabarr/db/parquet_db/DB_Source\=ChEMBL/ \
+    -n 100
+```
+
+**Convert molecules from a SMILES text file**
+
+If you have a `.txt` file containing one SMILES string per line, run:
+
+```bash
+python src/smiles2lmdb_opt.py \
+    -o test/test_mols.lmdb \
+    --txt_path test/smiles_test.txt
+```
+
+### 4. Run DrugCLIP virtual screening
+
+Before running the screening, modify the configuration file if needed:
+
+```bash
+external/Drug-The-Whole-Genome/retrieval.sh
+```
+
+Then launch the DrugCLIP virtual screening pipeline:
+
+```bash
+bash scripts/run_drugclip.sh
+```
+
+### 5. Output
+
+The pipeline generates a `.txt` file (defined by save_path) containing:
+
+- **SMILES** — molecule representation
+
+- **Cosine similarity** — similarity between protein and molecule embeddings
+
+- **Adjusted robust z-score** — normalized ranking score
+
+- **Label** — extracted from the molecules LMDB database
+
+If the `smiles2lmdb_opt.py` script is used, the label is **always** set to 0.
+
+## Solubility prediction using GROVER and KA-GNN
+
+## Toxicity prediction using GROVER and KA-GNN
 
 ## Integrated score for candidates ranking
