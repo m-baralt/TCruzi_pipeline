@@ -4,7 +4,7 @@ external/Drug-the-Whole-Genome/data/*
 # Ignore test folder
 test/*
 
-threshold_experiments/*
+threshold_experiments/normalizing/*
 
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
