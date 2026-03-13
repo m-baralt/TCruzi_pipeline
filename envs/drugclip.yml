@@ -259,7 +259,6 @@ dependencies:
       - typing-extensions==4.15.0
       - typing-inspection==0.4.2
       - tzdata==2025.3
-      - unicore==0.0.1
       - uri-template==1.3.0
       - urllib3==2.6.3
       - virtualenv==20.36.1
@@ -272,3 +271,4 @@ dependencies:
       - yarl==1.22.0
       - zipp==3.23.0
       - zstandard==0.25.0
+      - "https://github.com/dptech-corp/Uni-Core/releases/download/0.0.2/unicore-0.0.1+cu117torch1.13.1-cp39-cp39-linux_x86_64.whl"
