@@ -1,10 +1,15 @@
-# Ignore submodule weights
+# Ignore submodule data folder
 external/Drug-the-Whole-Genome/data/*
 
 # Ignore test folder
 test/*
 
+# Ignore drugclip results for experiments
+threshold_experiments/normalizing_litpcba/*
 threshold_experiments/normalizing/*
+
+# Ignore solubility data
+solubility_prediction/data/*
 
 # Ignore ipynb_checkpoints
 .ipynb_checkpoints/
