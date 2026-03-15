@@ -6,7 +6,7 @@ Candidate ligands are evaluated based on several criteria:
 
 - **High affinity** for the AKT-like kinase PH domain
 - **Low predicted toxicity** in humans
-- **High solubility**
+- **High predicted solubility**
 
 The workflow integrates structure-based screening and downstream filtering to identify promising compounds.
 
@@ -168,7 +168,7 @@ Before running the screening, modify the configuration file if needed:
 external/Drug-The-Whole-Genome/retrieval.sh
 ```
 
-Then launch the DrugCLIP virtual screening pipeline:
+Launch the DrugCLIP virtual screening pipeline. The script is designed to run correctly without changing your current environment, so you can stay in the `tc_pipeline` environment:
 
 ```bash
 bash scripts/run_drugclip.sh
