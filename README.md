@@ -36,6 +36,7 @@ Create the required conda environments:
 ```bash
 conda env create -f envs/tc_pipeline.yml
 conda env create -f envs/drugclip.yml
+conda env create -f envs/grover.yml
 ```
 
 Activate the main pipeline environment:
@@ -62,6 +63,18 @@ Extract the archive:
 cd external/Drug-The-Whole-Genome/data/
 unzip model_weights.zip
 ```
+
+---
+
+**Download GROVER pretrained model weights**
+
+The pretrained weights for the GROVER large model can be downloaded by running:
+
+```bash
+bash download_pretrained_grover.sh
+```
+
+This script will automatically download the weights and place them in the appropriate directory (`checkpoints/`).
 
 ---
 
@@ -188,8 +201,8 @@ The pipeline generates a `.txt` file (defined by save_path) containing:
 
 If the `smiles2lmdb_opt.py` script is used, the label is **always** set to 0.
 
-## Solubility prediction using GROVER and KA-GNN
+## Solubility prediction
 
-## Toxicity prediction using GROVER and KA-GNN
+## Toxicity prediction
 
 ## Integrated score for candidates ranking
