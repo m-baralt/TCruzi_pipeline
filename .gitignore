@@ -30,3 +30,7 @@ venv/
 
 # Ignore results
 result.txt
+
+# Ignore error experiments in solubility
+solubility_prediction/
+
