@@ -1,5 +1,11 @@
+# Ignore data folder
+data/*
+
 # Ignore submodule data folder
 external/Drug-the-Whole-Genome/data/*
+
+# Ignore submodule wandb
+external/grover/wandb/*
 
 # Ignore test folder
 test/*
