@@ -5,7 +5,7 @@ data/*
 external/Drug-the-Whole-Genome/data/*
 
 # Ignore submodule wandb
-external/grover/wandb/*
+external/grover/wandb/
 
 # Ignore test folder
 test/*
