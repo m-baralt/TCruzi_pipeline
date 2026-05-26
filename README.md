@@ -71,10 +71,12 @@ unzip model_weights.zip
 The pretrained weights for the GROVER large model can be downloaded by running:
 
 ```bash
-bash download_pretrained_grover.sh
+bash scripts/download_pretrained_grover.sh
 ```
 
 This script will automatically download the weights and place them in the appropriate directory (`checkpoints/`).
+
+**Note**: Downloading the pretrained weights is only necessary if you intend to re-run or resume fine-tuning.
 
 ---
 
@@ -202,6 +204,42 @@ The pipeline generates a `.txt` file (defined by save_path) containing:
 If the `smiles2lmdb_opt.py` script is used, the label is **always** set to 0.
 
 ## Solubility prediction
+
+### Download solubility data for fine-tuning
+
+You can download the solubility datasets using the script `download_solubility_data.sh`. This will download the datasets into `external/grover/solubility_data`.
+
+**Processed data (required for fine-tuning)**
+
+This includes the cleaned and preprocessed dataset ready for direct use in the pipeline.
+
+```bash
+bash scripts/download_solubility_data.sh --processed
+```
+
+**Raw datasets (optional)**
+
+This contains the original, unprocessed datasets. It is mainly intended for users who want to:
+
+- Inspect the original data
+- Reproduce preprocessing steps
+- Modify the preprocessing pipeline
+
+```bash
+bash scripts/download_solubility_data.sh --raw
+```
+
+The jupyter notebook `src/solubility/datasets_preprocessing.ipynb` documents how the original datasets were processed and merged into the final preprocessed dataset.
+
+**All data**
+
+Downloads both raw and processed datasets.
+
+```bash
+bash scripts/download_solubility_data.sh --all
+```
+---
+
 
 ## Toxicity prediction
 
