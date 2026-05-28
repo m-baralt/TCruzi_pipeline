@@ -7,8 +7,10 @@ external/Drug-the-Whole-Genome/data/*
 # Ignore submodule wandb
 external/grover/wandb/
 
-# Ignore test folder
+# Ignore test folders
 test/*
+nvmolkit_testing/*
+results_test/*
 
 # Ignore drugclip results for experiments
 threshold_experiments/normalizing_litpcba/*
