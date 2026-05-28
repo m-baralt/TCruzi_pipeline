@@ -13,8 +13,8 @@ for dir in data/DUD-E/*/; do
     POCKET_PATH="${dir}/pocket.lmdb" 
     save_path="/home/mabarr/TCruzi_pipeline/threshold_experiments/normalizing/${target}.txt"
 
-    CUDA_VISIBLE_DEVICES="1" python ./unimol/run_retrieval.py --user-dir ./unimol $data_path "./dict" --valid-subset test \
-        --num-workers 60 --ddp-backend=c10d --batch-size 4 \
+    CUDA_VISIBLE_DEVICES=0 python ./unimol/run_retrieval.py --user-dir ./unimol $data_path "./dict" --valid-subset test \
+        --num-workers 60 --ddp-backend=c10d --batch-size 64 \
         --task drugclip-new --loss in_batch_softmax --arch drugclip  \
         --max-pocket-atoms 511 \
         --fp16 --fp16-init-scale 4 --fp16-scale-window 256  --seed 1 \
