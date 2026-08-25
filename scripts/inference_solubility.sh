@@ -17,6 +17,6 @@ python external/grover/scripts/save_features.py \
 python external/grover/main.py predict \
     --data_path "$DATA_PATH" \
     --features_path external/grover/exampledata/finetune/solubility_inference.npz \
-    --checkpoint_dir model_features \
+    --checkpoint_dir model \
     --no_features_scaling \
     --output "$OUTPUT_PATH"
