@@ -1,7 +1,7 @@
 #!/bin/bash
 mkdir -p model 
 
-python external/grover/scripts/save_features.py --data_path /home/mabarr/TCruzi_pipeline/filtered_result_chembl.csv \
+python external/grover/scripts/save_features.py --data_path external/grover/solubility_data/solubility_data.csv \
                                                 --save_path external/grover/exampledata/finetune/solubility.npz \
                                                 --features_generator rdkit_2d_normalized \
                                                 --restart 
