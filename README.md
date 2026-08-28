@@ -80,6 +80,18 @@ This script will automatically download the weights and place them in the approp
 
 ---
 
+**Download fine-tuned GROVER weights**
+
+The solubility-finetuned GROVER weights can be downloaded by running:
+
+```bash
+bash scripts/download_finetuned_solubility_grover.sh
+```
+
+This script automatically downloads and extracts the model weights into the appropriate `model/` directory.
+
+---
+
 ## Pipeline overview
 
 1. Create molecular database from publicly available databases. 
@@ -205,9 +217,11 @@ If the `smiles2lmdb_opt.py` script is used, the label is **always** set to 0.
 
 ## Solubility prediction
 
-### Download solubility data for fine-tuning
+If you want to reproduce the GROVER fine-tuning procedure for solubility prediction, follow **Steps 1 and 2**. If you only want to perform solubility inference using a fine-tuned model, skip to **Step 3**.
 
-You can download the solubility datasets using the script `download_solubility_data.sh`. This will download the datasets into `external/grover/solubility_data`.
+### 1. Download solubility data for fine-tuning
+
+You can download the solubility datasets using the `download_solubility_data.sh` script. The datasets will be downloaded to `external/grover/solubility_data`.
 
 **Processed data (required for fine-tuning)**
 
@@ -239,6 +253,46 @@ Downloads both raw and processed datasets.
 bash scripts/download_solubility_data.sh --all
 ```
 ---
+
+### 2. GROVER fine-tuning for solubility prediction
+
+Run the following script to fine-tune GROVER. There is no need to modify the file paths if the data has not been moved to another location.
+
+```bash
+bash scripts/finetune_solubility_grover.sh
+```
+
+### 3. Solubility inference using the fine-tuned model
+
+To predict solubility for a new dataset using the fine-tuned GROVER model, run:
+
+```bash
+bash scripts/inference_solubility.sh <data_path> <output_path>
+```
+
+Where:
+- `<data_path>` is the path to the input CSV file containing the molecules SMILES for which solubility will be predicted.
+- `<output_path>` is the path to the output CSV file where the solubility predictions will be saved.
+
+The script first generates the RDKit 2D features and then uses the fine-tuned model in `model` directory to predict solubility. The predictions are saved to the specified output path.
+
+### 4. Computation of Solubility-finetuned GROVER embeddings
+
+Compute atom-, bond-, and graph-level embeddings using the solubility-finetuned GROVER model:
+
+```bash
+bash scripts/compute_solubility_embeddings.sh <data_path> <features_path>
+```
+
+For example:
+
+```bash
+bash scripts/compute_solubility_embeddings.sh \
+    external/grover/solubility_data/solubility_data.csv \
+    external/grover/exampledata/finetune/solubility.npz
+```
+
+The resulting embeddings are saved to `grover_embeddings_solubility.pt`.
 
 
 ## Toxicity prediction
