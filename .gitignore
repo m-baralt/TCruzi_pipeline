@@ -36,3 +36,26 @@ result.txt
 # Ignore error experiments in solubility
 solubility_prediction/
 
+# Ignore log files
+*.log
+
+# Ignore images
+*.jpg
+
+# Ignore data
+*.csv
+*.pt
+
+# Ignore models weights
+model/*
+model_features_nopretrain/*
+model_features_pretrain/*
+model_features_scaffold/*
+model_features_test/*
+model_nofeatures/*
+model_nofeatures_701515/*
+model_nofeatures_category/*
+model_nofeatures_category_dropout01/*
+model_nofeatures_multiclass/*
+model_nofeatures_nopretrain/*
+model_scaffold/*
